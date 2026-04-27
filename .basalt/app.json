@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "type": "app",
+  "app": {
+    "app_id": "issuetick",
+    "app_key": "issuetick",
+    "display_name": "IssueTick Ticket System",
+    "homepage_url": "http://localhost:5115",
+    "api_base_url": "http://localhost:8112",
+    "callback_urls": [
+      "http://localhost:8112/api/auth/callback"
+    ],
+    "service_ports": [
+      {
+        "service": "backend",
+        "port": 8112,
+        "protocol": "http"
+      },
+      {
+        "service": "frontend",
+        "port": 5115,
+        "protocol": "http"
+      }
+    ],
+    "metadata": {
+      "description": "A ticket management system for issue tracking and resolution."
+    }
+  }
+}

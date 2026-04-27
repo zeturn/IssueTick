@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0.0",
+  "metadata_type": "project_meta",
+  "project": {
+    "name": "IssueTick",
+    "display_name": "IssueTick",
+    "description": "A BasaltPass-integrated ticket management system for issue intake, assignment, discussion, and resolution tracking.",
+    "root_path": "/workspaces/WorkPlace/IssueTick",
+    "local_path": "C:/Users/Administrator/Desktop/WorkPlace/IssueTick"
+  },
+  "stack": {
+    "frontend": [
+      "React",
+      "TypeScript",
+      "Vite",
+      "Tailwind CSS"
+    ],
+    "backend": [
+      "Python",
+      "FastAPI",
+      "SQLAlchemy",
+      "SQLite"
+    ],
+    "auth": [
+      "BasaltPass OAuth2",
+      "JWT session cookie"
+    ]
+  },
+  "features": {
+    "ticketing": [
+      "Ticket creation with priority and category",
+      "Ticket status workflow",
+      "Assignee management",
+      "Comment timeline with internal notes",
+      "Admin statistics and management views"
+    ],
+    "basaltpass_integration": {
+      "record_name": "IssueTick OAuth Client",
+      "callback_url": "http://localhost:8112/api/auth/callback",
+      "frontend_url": "http://localhost:5115"
+    }
+  },
+  "service_ports": [
+    {
+      "service": "backend_api",
+      "port": 8112,
+      "protocol": "http",
+      "url": "http://localhost:8112"
+    },
+    {
+      "service": "frontend_dev",
+      "port": 5115,
+      "protocol": "http",
+      "url": "http://localhost:5115"
+    }
+  ],
+  "health_checks": [
+    {
+      "service": "backend_api",
+      "kind": "liveness",
+      "path": "/api/health",
+      "url": "http://localhost:8112/api/health"
+    }
+  ],
+  "commands": {
+    "backend_dev": "cd backend && uvicorn app.main:app --reload --host 0.0.0.0 --port 8112",
+    "frontend_dev": "cd frontend && npm run dev -- --host 0.0.0.0 --port 5115",
+    "frontend_build": "cd frontend && npm run build"
+  }
+}
+

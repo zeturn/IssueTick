@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0",
+  "type": "rbac",
+  "permissions": [
+    {
+      "permission_key": "issuetick.admin",
+      "display_name": "IssueTick Admin",
+      "description": "Full system access including user management and configuration."
+    },
+    {
+      "permission_key": "issuetick.lead",
+      "display_name": "IssueTick Lead",
+      "description": "Assign, transfer, and oversee group tickets."
+    },
+    {
+      "permission_key": "issuetick.handler",
+      "display_name": "IssueTick Handler",
+      "description": "Process assigned tickets, reply, and change status."
+    },
+    {
+      "permission_key": "issuetick.user",
+      "display_name": "IssueTick User",
+      "description": "Submit and track own tickets."
+    }
+  ],
+  "roles": [
+    {
+      "role_key": "issuetick_admin",
+      "display_name": "IssueTick Administrator",
+      "description": "Administrator with full access."
+    },
+    {
+      "role_key": "issuetick_lead",
+      "display_name": "IssueTick Lead",
+      "description": "Team lead who can assign and transfer tickets."
+    },
+    {
+      "role_key": "issuetick_handler",
+      "display_name": "IssueTick Handler",
+      "description": "Ticket handler / support staff."
+    },
+    {
+      "role_key": "issuetick_user",
+      "display_name": "IssueTick User",
+      "description": "Regular user who submits tickets."
+    }
+  ],
+  "role_permissions": [
+    {
+      "role_key": "issuetick_admin",
+      "permission_key": "issuetick.admin",
+      "effect": "allow"
+    },
+    {
+      "role_key": "issuetick_lead",
+      "permission_key": "issuetick.lead",
+      "effect": "allow"
+    },
+    {
+      "role_key": "issuetick_lead",
+      "permission_key": "issuetick.handler",
+      "effect": "allow"
+    },
+    {
+      "role_key": "issuetick_handler",
+      "permission_key": "issuetick.handler",
+      "effect": "allow"
+    },
+    {
+      "role_key": "issuetick_user",
+      "permission_key": "issuetick.user",
+      "effect": "allow"
+    }
+  ]
+}
