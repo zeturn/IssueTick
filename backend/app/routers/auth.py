@@ -64,10 +64,11 @@ def _effective_session_samesite() -> str:
     return samesite
 
 
-def _set_oauth_context_cookie(response: Response, state: str, verifier: str) -> None:
+def _set_oauth_context_cookie(response: Response, state: str, verifier: str, nonce: str) -> None:
     payload = {
         "state": state,
         "verifier": verifier,
+        "nonce": nonce,
         "exp": datetime.now(timezone.utc) + timedelta(seconds=settings.OAUTH_COOKIE_MAX_AGE),
     }
     token = jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
@@ -83,7 +84,7 @@ def _set_oauth_context_cookie(response: Response, state: str, verifier: str) -> 
     )
 
 
-def _read_oauth_context_cookie(request: Request, state: str) -> str | None:
+def _read_oauth_context_cookie(request: Request, state: str) -> dict | None:
     token = request.cookies.get(settings.OAUTH_COOKIE_NAME)
     if not token:
         return None
@@ -99,7 +100,7 @@ def _read_oauth_context_cookie(request: Request, state: str) -> str | None:
     verifier = payload.get("verifier")
     if not isinstance(verifier, str) or not verifier:
         return None
-    return verifier
+    return payload
 
 
 def _clear_oauth_context_cookie(response: Response) -> None:
@@ -144,12 +145,14 @@ async def login():
     """Initiate OAuth2 PKCE login flow."""
     state = secrets.token_urlsafe(16)
     verifier, challenge = _generate_pkce()
+    nonce = secrets.token_urlsafe(24)
 
     params = {
         "client_id": settings.BASALT_CLIENT_ID,
         "redirect_uri": settings.BASALT_REDIRECT_URI,
         "response_type": "code",
         "state": state,
+        "nonce": nonce,
         "code_challenge": challenge,
         "code_challenge_method": "S256",
         "scope": "openid profile email",
@@ -157,7 +160,7 @@ async def login():
 
     auth_url = f"{settings.BASALT_BASE_URL}/api/v1/oauth/authorize?{urlencode(params)}"
     response = RedirectResponse(url=auth_url, status_code=302)
-    _set_oauth_context_cookie(response, state, verifier)
+    _set_oauth_context_cookie(response, state, verifier, nonce)
     return response
 
 
@@ -170,12 +173,14 @@ async def callback(code: str, state: str, request: Request, db: Session = Depend
         return Response(content='{"ok": false, "ignored": true, "reason": "non_navigation_callback"}', media_type="application/json")
 
     # Validate state
-    verifier = _read_oauth_context_cookie(request, state)
-    if verifier is None:
+    oauth_context = _read_oauth_context_cookie(request, state)
+    if oauth_context is None:
         logger.warning("OAuth callback rejected: invalid state or missing oauth context cookie")
         response = RedirectResponse(url=_frontend_login_error_url("invalid_state"), status_code=302)
         _clear_oauth_context_cookie(response)
         return response
+    verifier = oauth_context["verifier"]
+    expected_nonce = oauth_context.get("nonce")
 
     # Exchange code for tokens
     async with httpx.AsyncClient(timeout=10.0) as client:
@@ -204,6 +209,16 @@ async def callback(code: str, state: str, request: Request, db: Session = Depend
 
         token_data = token_resp.json()
         access_token = token_data.get("access_token")
+        id_token = token_data.get("id_token")
+        if isinstance(id_token, str) and id_token:
+            try:
+                claims = jwt.get_unverified_claims(id_token)
+            except JWTError:
+                claims = {}
+            if claims.get("nonce") != expected_nonce:
+                response = RedirectResponse(url=_frontend_login_error_url("invalid_nonce"), status_code=302)
+                _clear_oauth_context_cookie(response)
+                return response
 
         # Fetch user info
         userinfo_resp = await client.get(
