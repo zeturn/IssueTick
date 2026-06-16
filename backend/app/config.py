@@ -19,11 +19,23 @@ def _env_optional(name: str):
     return value or None
 
 
+def _env_first(*names: str, default: str = "") -> str:
+    for name in names:
+        value = os.getenv(name)
+        if value is not None:
+            return value
+    return default
+
+
 class Settings:
-    BASALT_BASE_URL: str = os.getenv("BASALT_BASE_URL", "http://localhost:8101")
-    BASALT_CLIENT_ID: str = os.getenv("BASALT_CLIENT_ID", "")
-    BASALT_CLIENT_SECRET: str = os.getenv("BASALT_CLIENT_SECRET", "")
-    BASALT_REDIRECT_URI: str = os.getenv("BASALT_REDIRECT_URI", "http://localhost:8112/api/auth/callback")
+    BASALTPASS_BASE_URL: str = _env_first("BASALTPASS_BASE_URL", "BASALT_BASE_URL", default="http://localhost:8101")
+    BASALTPASS_CLIENT_ID: str = _env_first("BASALTPASS_CLIENT_ID", "BASALT_CLIENT_ID")
+    BASALTPASS_CLIENT_SECRET: str = _env_first("BASALTPASS_CLIENT_SECRET", "BASALT_CLIENT_SECRET")
+    BASALTPASS_REDIRECT_URI: str = _env_first(
+        "BASALTPASS_REDIRECT_URI",
+        "BASALT_REDIRECT_URI",
+        default="http://localhost:8112/api/auth/callback",
+    )
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5115")
     JWT_SECRET: str = os.getenv("JWT_SECRET", "issuetick-dev-jwt-secret-change-in-prod")
     JWT_ALGORITHM: str = "HS256"

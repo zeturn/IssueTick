@@ -45,8 +45,8 @@ if app_id:
         client_secret = res_auth["data"]["client_secret"]
         print("\n" + "=" * 50)
         print("Save these to backend/.env:")
-        print(f"BASALT_CLIENT_ID={client_id}")
-        print(f"BASALT_CLIENT_SECRET={client_secret}")
+        print(f"BASALTPASS_CLIENT_ID={client_id}")
+        print(f"BASALTPASS_CLIENT_SECRET={client_secret}")
         print("=" * 50)
     except Exception as e:
         print("Create OAuth Error:", e)

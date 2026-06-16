@@ -148,8 +148,8 @@ async def login():
     nonce = secrets.token_urlsafe(24)
 
     params = {
-        "client_id": settings.BASALT_CLIENT_ID,
-        "redirect_uri": settings.BASALT_REDIRECT_URI,
+        "client_id": settings.BASALTPASS_CLIENT_ID,
+        "redirect_uri": settings.BASALTPASS_REDIRECT_URI,
         "response_type": "code",
         "state": state,
         "nonce": nonce,
@@ -158,7 +158,7 @@ async def login():
         "scope": "openid profile email",
     }
 
-    auth_url = f"{settings.BASALT_BASE_URL}/api/v1/oauth/authorize?{urlencode(params)}"
+    auth_url = f"{settings.BASALTPASS_BASE_URL}/api/v1/oauth/authorize?{urlencode(params)}"
     response = RedirectResponse(url=auth_url, status_code=302)
     _set_oauth_context_cookie(response, state, verifier, nonce)
     return response
@@ -186,14 +186,14 @@ async def callback(code: str, state: str, request: Request, db: Session = Depend
     async with httpx.AsyncClient(timeout=10.0) as client:
         payload = {
             "grant_type": "authorization_code",
-            "client_id": settings.BASALT_CLIENT_ID,
-            "client_secret": settings.BASALT_CLIENT_SECRET,
-            "redirect_uri": settings.BASALT_REDIRECT_URI,
+            "client_id": settings.BASALTPASS_CLIENT_ID,
+            "client_secret": settings.BASALTPASS_CLIENT_SECRET,
+            "redirect_uri": settings.BASALTPASS_REDIRECT_URI,
             "code": code,
             "code_verifier": verifier,
         }
         token_resp = await client.post(
-            f"{settings.BASALT_BASE_URL}/api/v1/oauth/token",
+            f"{settings.BASALTPASS_BASE_URL}/api/v1/oauth/token",
             data=payload,
             headers={"Content-Type": "application/x-www-form-urlencoded"},
         )
@@ -222,7 +222,7 @@ async def callback(code: str, state: str, request: Request, db: Session = Depend
 
         # Fetch user info
         userinfo_resp = await client.get(
-            f"{settings.BASALT_BASE_URL}/api/v1/oauth/userinfo",
+            f"{settings.BASALTPASS_BASE_URL}/api/v1/oauth/userinfo",
             headers={"Authorization": f"Bearer {access_token}"},
         )
 

@@ -74,10 +74,10 @@ The backend reads configuration from `backend/.env`. Do not commit real secrets.
 Common values:
 
 ```env
-BASALT_BASE_URL=http://localhost:8101
-BASALT_CLIENT_ID=
-BASALT_CLIENT_SECRET=
-BASALT_REDIRECT_URI=http://localhost:8112/api/auth/callback
+BASALTPASS_BASE_URL=http://localhost:8101
+BASALTPASS_CLIENT_ID=
+BASALTPASS_CLIENT_SECRET=
+BASALTPASS_REDIRECT_URI=http://localhost:8112/api/auth/callback
 FRONTEND_URL=http://localhost:5115
 JWT_SECRET=change-me
 DATABASE_URL=sqlite:///./issuetick.db
