@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createTicket, fetchCategories, type Category } from '../api/client';
+import { useI18n } from '../i18n';
 import Layout from '../components/layout/Layout';
 import Card from '../components/ui/Card';
 import Input from '../components/ui/Input';
@@ -8,15 +9,9 @@ import Textarea from '../components/ui/Textarea';
 import Select from '../components/ui/Select';
 import Button from '../components/ui/Button';
 
-const priorityOptions = [
-  { value: 'low', label: '低 — 不影响工作' },
-  { value: 'medium', label: '中 — 有一定影响' },
-  { value: 'high', label: '高 — 严重影响' },
-  { value: 'urgent', label: '紧急 — 需要立即处理' },
-];
-
 export default function CreateTicketPage() {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const [categories, setCategories] = useState<Category[]>([]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -34,7 +29,7 @@ export default function CreateTicketPage() {
     setError('');
 
     if (!title.trim()) {
-      setError('请输入工单标题');
+      setError(t('create.error.titleRequired'));
       return;
     }
 
@@ -48,10 +43,17 @@ export default function CreateTicketPage() {
       });
       navigate(`/tickets/${ticket.id}`);
     } catch (err: any) {
-      setError(err.message || '创建失败');
+      setError(err.message || t('create.error.failed'));
     }
     setLoading(false);
   };
+
+  const priorityOptions = [
+    { value: 'low', label: `${t('priority.low')} — ${t('priority.low.note')}` },
+    { value: 'medium', label: `${t('priority.medium')} — ${t('priority.medium.note')}` },
+    { value: 'high', label: `${t('priority.high')} — ${t('priority.high.note')}` },
+    { value: 'urgent', label: `${t('priority.urgent')} — ${t('priority.urgent.note')}` },
+  ];
 
   const categoryOptions = categories.map((c) => ({
     value: String(c.id),
@@ -69,10 +71,10 @@ export default function CreateTicketPage() {
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
             </svg>
-            返回
+            {t('create.back')}
           </button>
-          <h1 className="text-3xl font-bold text-surface-100">创建工单</h1>
-          <p className="text-surface-400 mt-1">填写以下信息提交您的问题或请求</p>
+          <h1 className="text-3xl font-bold text-surface-100">{t('create.title')}</h1>
+          <p className="text-surface-400 mt-1">{t('create.subtitle')}</p>
         </div>
 
         <Card>
@@ -84,16 +86,16 @@ export default function CreateTicketPage() {
             )}
 
             <Input
-              label="标题"
-              placeholder="简要描述您的问题"
+              label={t('create.field.title')}
+              placeholder={t('create.field.titlePlaceholder')}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
             />
 
             <Textarea
-              label="详细描述"
-              placeholder="请详细说明问题的现象、影响范围、复现步骤等..."
+              label={t('create.field.description')}
+              placeholder={t('create.field.descriptionPlaceholder')}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={6}
@@ -101,16 +103,16 @@ export default function CreateTicketPage() {
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Select
-                label="优先级"
+                label={t('create.field.priority')}
                 options={priorityOptions}
                 value={priority}
                 onChange={(e) => setPriority(e.target.value)}
               />
 
               <Select
-                label="分类"
+                label={t('create.field.category')}
                 options={categoryOptions}
-                placeholder="选择分类（可选）"
+                placeholder={t('create.field.categoryPlaceholder')}
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
               />
@@ -118,10 +120,10 @@ export default function CreateTicketPage() {
 
             <div className="flex gap-3 pt-2">
               <Button type="submit" loading={loading} className="flex-1">
-                提交工单
+                {t('create.submit')}
               </Button>
               <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
-                取消
+                {t('create.cancel')}
               </Button>
             </div>
           </form>

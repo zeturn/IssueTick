@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
+import { useI18n } from './i18n';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import TicketListPage from './pages/TicketListPage';
@@ -11,13 +12,14 @@ import AdminUsersPage from './pages/AdminUsersPage';
 
 function ProtectedRoute({ children, roles }: { children: React.ReactNode; roles?: string[] }) {
   const { user, loading } = useAuth();
+  const { t } = useI18n();
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-3 border-primary-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-surface-400 text-sm">加载中...</p>
+          <p className="text-surface-400 text-sm">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -34,13 +36,14 @@ function ProtectedRoute({ children, roles }: { children: React.ReactNode; roles?
 
 function AppRoutes() {
   const { user, loading } = useAuth();
+  const { t } = useI18n();
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-3 border-primary-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-surface-400 text-sm">初始化中...</p>
+          <p className="text-surface-400 text-sm">{t('common.initializing')}</p>
         </div>
       </div>
     );

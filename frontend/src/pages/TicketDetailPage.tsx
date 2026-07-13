@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useI18n } from '../i18n';
 import {
   fetchTicket, fetchComments, fetchHandlers,
   updateTicket, createComment, assignTicket,
@@ -21,6 +22,7 @@ export default function TicketDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
+  const { t, formatDateTime } = useI18n();
 
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [comments, setComments] = useState<CommentType[]>([]);
@@ -40,12 +42,12 @@ export default function TicketDetailPage() {
     if (!id) return;
     const load = async () => {
       try {
-        const [t, c] = await Promise.all([
+        const [fetchedTicket, fetchedComments] = await Promise.all([
           fetchTicket(parseInt(id)),
           fetchComments(parseInt(id)),
         ]);
-        setTicket(t);
-        setComments(c);
+        setTicket(fetchedTicket);
+        setComments(fetchedComments);
         if (currentUser && ['admin', 'lead'].includes(currentUser.role)) {
           const h = await fetchHandlers();
           setHandlers(h);
@@ -77,7 +79,7 @@ export default function TicketDetailPage() {
       const updated = await updateTicket(parseInt(id), { status: newStatus });
       setTicket(updated);
     } catch (err: any) {
-      alert(err.message || '状态更新失败');
+      alert(err.message || t('detail.statusUpdateFailed'));
     }
   };
 
@@ -108,22 +110,22 @@ export default function TicketDetailPage() {
   // Available status actions based on current status and role
   const statusActions: { label: string; status: string; variant: 'primary' | 'success' | 'danger' | 'warning' | 'secondary' }[] = [];
   if (isStaff) {
-    if (ticket.status === 'assigned') statusActions.push({ label: '开始处理', status: 'in_progress', variant: 'primary' });
+    if (ticket.status === 'assigned') statusActions.push({ label: t('detail.action.start'), status: 'in_progress', variant: 'primary' });
     if (ticket.status === 'in_progress') {
-      statusActions.push({ label: '等待用户回复', status: 'pending_user', variant: 'warning' });
-      statusActions.push({ label: '标记为已解决', status: 'resolved', variant: 'success' });
+      statusActions.push({ label: t('detail.action.pending'), status: 'pending_user', variant: 'warning' });
+      statusActions.push({ label: t('detail.action.resolve'), status: 'resolved', variant: 'success' });
     }
     if (ticket.status === 'new' || ticket.status === 'assigned') {
-      statusActions.push({ label: '取消工单', status: 'cancelled', variant: 'danger' });
+      statusActions.push({ label: t('detail.action.cancel'), status: 'cancelled', variant: 'danger' });
     }
   }
   if (isCreator) {
     if (ticket.status === 'resolved') {
-      statusActions.push({ label: '确认关闭', status: 'closed', variant: 'success' });
-      statusActions.push({ label: '重新打开', status: 'in_progress', variant: 'warning' });
+      statusActions.push({ label: t('detail.action.close'), status: 'closed', variant: 'success' });
+      statusActions.push({ label: t('detail.action.reopen'), status: 'in_progress', variant: 'warning' });
     }
     if (ticket.status === 'new') {
-      statusActions.push({ label: '取消工单', status: 'cancelled', variant: 'danger' });
+      statusActions.push({ label: t('detail.action.cancel'), status: 'cancelled', variant: 'danger' });
     }
   }
 
@@ -139,7 +141,7 @@ export default function TicketDetailPage() {
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
             </svg>
-            返回列表
+            {t('detail.back')}
           </button>
 
           <div className="flex items-start justify-between gap-4">
@@ -154,7 +156,7 @@ export default function TicketDetailPage() {
 
             {isLead && (
               <Button variant="secondary" onClick={() => setShowAssign(true)}>
-                {ticket.assignee ? '重新分配' : '分配处理人'}
+                {ticket.assignee ? t('detail.reassign') : t('detail.assign')}
               </Button>
             )}
           </div>
@@ -166,10 +168,10 @@ export default function TicketDetailPage() {
             {/* Description */}
             <Card>
               <CardHeader>
-                <CardTitle>问题描述</CardTitle>
+                <CardTitle>{t('detail.description')}</CardTitle>
               </CardHeader>
               <div className="text-sm text-surface-300 whitespace-pre-wrap leading-relaxed">
-                {ticket.description || '无描述'}
+                {ticket.description || t('detail.noDescription')}
               </div>
             </Card>
 
@@ -194,12 +196,12 @@ export default function TicketDetailPage() {
             {/* Comments / Timeline */}
             <Card>
               <CardHeader>
-                <CardTitle>讨论记录（{comments.length}）</CardTitle>
+                <CardTitle>{t('detail.discussion', { n: comments.length })}</CardTitle>
               </CardHeader>
 
               <div className="space-y-4 mb-6">
                 {comments.length === 0 ? (
-                  <p className="text-sm text-surface-500 text-center py-6">暂无讨论</p>
+                  <p className="text-sm text-surface-500 text-center py-6">{t('detail.noDiscussion')}</p>
                 ) : (
                   comments.map((comment) => (
                     <div
@@ -220,10 +222,10 @@ export default function TicketDetailPage() {
                             {comment.user?.name || comment.user?.email}
                           </span>
                           {comment.is_internal && (
-                            <Badge variant="warning">内部备注</Badge>
+                            <Badge variant="warning">{t('detail.internalNote')}</Badge>
                           )}
                           <span className="text-xs text-surface-500">
-                            {new Date(comment.created_at).toLocaleString('zh-CN')}
+                            {formatDateTime(comment.created_at)}
                           </span>
                         </div>
                         <div className={`
@@ -245,7 +247,7 @@ export default function TicketDetailPage() {
               {!['closed', 'cancelled'].includes(ticket.status) && (
                 <div className="border-t border-surface-700/50 pt-4">
                   <Textarea
-                    placeholder="输入回复内容..."
+                    placeholder={t('detail.replyPlaceholder')}
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     rows={3}
@@ -260,12 +262,12 @@ export default function TicketDetailPage() {
                             onChange={(e) => setIsInternal(e.target.checked)}
                             className="rounded border-surface-600 bg-white text-primary-600 focus:ring-primary-500 cursor-pointer"
                           />
-                          内部备注（用户不可见）
+                          {t('detail.internalNoteHint')}
                         </label>
                       )}
                     </div>
                     <Button onClick={handleAddComment} loading={submitting} disabled={!newComment.trim()}>
-                      发送回复
+                      {t('detail.sendReply')}
                     </Button>
                   </div>
                 </div>
@@ -276,9 +278,9 @@ export default function TicketDetailPage() {
           {/* Sidebar info */}
           <div className="space-y-5">
             <Card>
-              <h4 className="text-sm font-semibold text-surface-200 mb-4">工单信息</h4>
+              <h4 className="text-sm font-semibold text-surface-200 mb-4">{t('detail.info')}</h4>
               <div className="space-y-4">
-                <InfoRow label="提交人">
+                <InfoRow label={t('detail.info.creator')}>
                   {ticket.creator && (
                     <div className="flex items-center gap-2">
                       <Avatar name={ticket.creator.name} url={ticket.creator.avatar_url} size="sm" />
@@ -287,46 +289,46 @@ export default function TicketDetailPage() {
                   )}
                 </InfoRow>
 
-                <InfoRow label="处理人">
+                <InfoRow label={t('detail.info.assignee')}>
                   {ticket.assignee ? (
                     <div className="flex items-center gap-2">
                       <Avatar name={ticket.assignee.name} url={ticket.assignee.avatar_url} size="sm" />
                       <span className="text-sm text-surface-200">{ticket.assignee.name || ticket.assignee.email}</span>
                     </div>
                   ) : (
-                    <span className="text-sm text-surface-500">未分配</span>
+                    <span className="text-sm text-surface-500">{t('detail.unassigned')}</span>
                   )}
                 </InfoRow>
 
-                <InfoRow label="分类">
+                <InfoRow label={t('detail.info.category')}>
                   {ticket.category ? (
                     <span className="flex items-center gap-1.5 text-sm" style={{ color: ticket.category.color }}>
                       <span className="w-2 h-2 rounded-full" style={{ backgroundColor: ticket.category.color }} />
                       {ticket.category.name}
                     </span>
                   ) : (
-                    <span className="text-sm text-surface-500">未分类</span>
+                    <span className="text-sm text-surface-500">{t('detail.uncategorized')}</span>
                   )}
                 </InfoRow>
 
-                <InfoRow label="创建时间">
+                <InfoRow label={t('detail.info.created')}>
                   <span className="text-sm text-surface-300">
-                    {new Date(ticket.created_at).toLocaleString('zh-CN')}
+                    {formatDateTime(ticket.created_at)}
                   </span>
                 </InfoRow>
 
                 {ticket.resolved_at && (
-                  <InfoRow label="解决时间">
+                  <InfoRow label={t('detail.info.resolved')}>
                     <span className="text-sm text-emerald-700">
-                      {new Date(ticket.resolved_at).toLocaleString('zh-CN')}
+                      {formatDateTime(ticket.resolved_at)}
                     </span>
                   </InfoRow>
                 )}
 
                 {ticket.closed_at && (
-                  <InfoRow label="关闭时间">
+                  <InfoRow label={t('detail.info.closed')}>
                     <span className="text-sm text-surface-400">
-                      {new Date(ticket.closed_at).toLocaleString('zh-CN')}
+                      {formatDateTime(ticket.closed_at)}
                     </span>
                   </InfoRow>
                 )}
@@ -337,18 +339,18 @@ export default function TicketDetailPage() {
       </div>
 
       {/* Assign Modal */}
-      <Modal open={showAssign} onClose={() => setShowAssign(false)} title="分配处理人">
+      <Modal open={showAssign} onClose={() => setShowAssign(false)} title={t('detail.modal.assignTitle')}>
         <div className="space-y-4">
           <Select
-            label="选择处理人"
-            options={handlers.map((h) => ({ value: String(h.id), label: `${h.name || h.email} (${h.role})` }))}
-            placeholder="选择一个处理人"
+            label={t('detail.modal.selectHandler')}
+            options={handlers.map((h) => ({ value: String(h.id), label: `${h.name || h.email} (${t(`role.${h.role}`)})` }))}
+            placeholder={t('detail.modal.selectHandlerPlaceholder')}
             value={assigneeId}
             onChange={(e) => setAssigneeId(e.target.value)}
           />
           <div className="flex gap-3 pt-2">
-            <Button onClick={handleAssign} disabled={!assigneeId} className="flex-1">确认分配</Button>
-            <Button variant="secondary" onClick={() => setShowAssign(false)}>取消</Button>
+            <Button onClick={handleAssign} disabled={!assigneeId} className="flex-1">{t('detail.modal.confirmAssign')}</Button>
+            <Button variant="secondary" onClick={() => setShowAssign(false)}>{t('create.cancel')}</Button>
           </div>
         </div>
       </Modal>

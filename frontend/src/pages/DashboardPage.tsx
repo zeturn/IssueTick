@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useI18n } from '../i18n';
 import { fetchTickets, fetchStats, type Ticket, type Stats } from '../api/client';
 import Layout from '../components/layout/Layout';
 import Card, { CardHeader, CardTitle } from '../components/ui/Card';
@@ -10,6 +11,7 @@ import Avatar from '../components/ui/Avatar';
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const { t, formatDate } = useI18n();
   const navigate = useNavigate();
   const [recentTickets, setRecentTickets] = useState<Ticket[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
@@ -32,9 +34,9 @@ export default function DashboardPage() {
 
   const greeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return '早上好';
-    if (hour < 18) return '下午好';
-    return '晚上好';
+    if (hour < 12) return t('dashboard.greeting.morning');
+    if (hour < 18) return t('dashboard.greeting.afternoon');
+    return t('dashboard.greeting.evening');
   };
 
   return (
@@ -46,7 +48,7 @@ export default function DashboardPage() {
             <h1 className="text-3xl font-bold text-surface-100">
               {greeting()}，{user?.name || user?.email}
             </h1>
-            <p className="text-surface-400 mt-1">欢迎回到 IssueTick 工单管理控制台</p>
+            <p className="text-surface-400 mt-1">{t('dashboard.welcome')}</p>
           </div>
           <button
             onClick={() => navigate('/tickets/new')}
@@ -60,29 +62,29 @@ export default function DashboardPage() {
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
-            创建工单
+            {t('dashboard.createTicket')}
           </button>
         </div>
 
         {/* Stats Cards (admin/lead only) */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard label="全部工单" value={stats.total_tickets} color="text-primary-700" bgColor="bg-primary-50" />
-            <StatCard label="进行中" value={stats.open_tickets} color="text-amber-700" bgColor="bg-amber-50" />
-            <StatCard label="已解决" value={stats.resolved_tickets} color="text-emerald-700" bgColor="bg-emerald-50" />
-            <StatCard label="用户数" value={stats.total_users} color="text-sky-700" bgColor="bg-sky-50" />
+            <StatCard label={t('dashboard.stat.all')} value={stats.total_tickets} color="text-primary-700" bgColor="bg-primary-50" />
+            <StatCard label={t('dashboard.stat.open')} value={stats.open_tickets} color="text-amber-700" bgColor="bg-amber-50" />
+            <StatCard label={t('dashboard.stat.resolved')} value={stats.resolved_tickets} color="text-emerald-700" bgColor="bg-emerald-50" />
+            <StatCard label={t('dashboard.stat.users')} value={stats.total_users} color="text-sky-700" bgColor="bg-sky-50" />
           </div>
         )}
 
         {/* Recent Tickets */}
         <Card>
           <CardHeader>
-            <CardTitle>最近工单</CardTitle>
+            <CardTitle>{t('dashboard.recent')}</CardTitle>
             <button
               onClick={() => navigate('/tickets')}
               className="text-sm text-primary-400 hover:text-primary-300 transition-colors cursor-pointer"
             >
-              查看全部 →
+              {t('dashboard.viewAll')}
             </button>
           </CardHeader>
 
@@ -97,8 +99,8 @@ export default function DashboardPage() {
               <svg className="w-16 h-16 mx-auto mb-4 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
-              <p className="text-lg">暂无工单</p>
-              <p className="text-sm mt-1">点击右上角按钮创建您的第一个工单</p>
+              <p className="text-lg">{t('dashboard.empty.title')}</p>
+              <p className="text-sm mt-1">{t('dashboard.empty.desc')}</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -127,7 +129,7 @@ export default function DashboardPage() {
                       <Avatar name={ticket.assignee.name} url={ticket.assignee.avatar_url} size="sm" />
                     )}
                     <div className="text-xs text-surface-500">
-                      {new Date(ticket.created_at).toLocaleDateString('zh-CN')}
+                      {formatDate(ticket.created_at)}
                     </div>
                     <svg className="w-4 h-4 text-surface-600 group-hover:text-surface-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />

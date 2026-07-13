@@ -1,18 +1,20 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { useI18n } from '../../i18n';
 import Avatar from '../ui/Avatar';
 
 const navItems = [
-  { path: '/', label: '工作台', icon: DashboardIcon, roles: ['user', 'handler', 'lead', 'admin'] },
-  { path: '/tickets', label: '工单列表', icon: TicketIcon, roles: ['user', 'handler', 'lead', 'admin'] },
-  { path: '/tickets/new', label: '创建工单', icon: PlusIcon, roles: ['user', 'handler', 'lead', 'admin'] },
-  { path: '/admin', label: '管理概览', icon: AdminIcon, roles: ['admin', 'lead'] },
-  { path: '/admin/categories', label: '分类管理', icon: CategoryIcon, roles: ['admin'] },
-  { path: '/admin/users', label: '用户管理', icon: UsersIcon, roles: ['admin'] },
+  { path: '/', labelKey: 'nav.dashboard', icon: DashboardIcon, roles: ['user', 'handler', 'lead', 'admin'] },
+  { path: '/tickets', labelKey: 'nav.tickets', icon: TicketIcon, roles: ['user', 'handler', 'lead', 'admin'] },
+  { path: '/tickets/new', labelKey: 'nav.newTicket', icon: PlusIcon, roles: ['user', 'handler', 'lead', 'admin'] },
+  { path: '/admin', labelKey: 'nav.admin', icon: AdminIcon, roles: ['admin', 'lead'] },
+  { path: '/admin/categories', labelKey: 'nav.categories', icon: CategoryIcon, roles: ['admin'] },
+  { path: '/admin/users', labelKey: 'nav.users', icon: UsersIcon, roles: ['admin'] },
 ];
 
 export default function Sidebar() {
   const { user, logout } = useAuth();
+  const { t, locale, toggleLocale } = useI18n();
   const filteredNav = navItems.filter((item) => user && item.roles.includes(user.role));
 
   return (
@@ -30,7 +32,7 @@ export default function Sidebar() {
       <div className="border-b border-surface-700 p-4">
         <div className="flex h-10 items-center gap-2 rounded-lg border border-surface-700 bg-white px-3 text-sm text-surface-400 shadow-sm">
           <SearchIcon className="h-4 w-4 shrink-0" />
-          <span className="truncate">快速搜索...</span>
+          <span className="truncate">{t('common.searchPlaceholder')}</span>
           <span className="ml-auto text-xs text-surface-500">Ctrl K</span>
         </div>
       </div>
@@ -51,7 +53,7 @@ export default function Sidebar() {
             `}
           >
             <item.icon className="h-5 w-5 shrink-0 text-surface-400" />
-            <span>{item.label}</span>
+            <span>{t(item.labelKey)}</span>
           </NavLink>
         ))}
       </nav>
@@ -61,15 +63,24 @@ export default function Sidebar() {
           <Avatar name={user?.name || user?.email || '?'} url={user?.avatar_url} size="sm" />
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium text-surface-200">{user?.name || user?.email}</p>
-            <p className="text-xs text-surface-500">当前账户</p>
+            <p className="text-xs text-surface-500">{t('common.account')}</p>
           </div>
+        </div>
+        <div className="mb-2">
+          <button
+            onClick={toggleLocale}
+            className="flex h-9 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-surface-700 bg-white px-3 text-xs font-medium text-surface-400 transition-colors hover:text-surface-100"
+          >
+            <GlobeIcon className="h-4 w-4 shrink-0" />
+            <span>{locale === 'zh' ? 'English' : '中文'}</span>
+          </button>
         </div>
         <button
           onClick={logout}
           className="flex h-10 w-full cursor-pointer items-center gap-3 rounded-lg px-3 text-sm text-surface-400 transition-colors hover:bg-white hover:text-red-700"
         >
           <LogoutIcon className="h-5 w-5 shrink-0" />
-          <span>退出登录</span>
+          <span>{t('common.logout')}</span>
         </button>
       </div>
     </aside>
@@ -147,6 +158,14 @@ function LogoutIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M15 8V6.5A1.5 1.5 0 0 0 13.5 5h-7A1.5 1.5 0 0 0 5 6.5v11A1.5 1.5 0 0 0 6.5 19h7a1.5 1.5 0 0 0 1.5-1.5V16M12 12h8m0 0-3-3m3 3-3 3" />
+    </svg>
+  );
+}
+
+function GlobeIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0c2.5-2.3 3.8-5.6 3.8-9S14.5 5.3 12 3m0 18c-2.5-2.3-3.8-5.6-3.8-9S9.5 5.3 12 3M3.5 9h17M3.5 15h17" />
     </svg>
   );
 }

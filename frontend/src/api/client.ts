@@ -2,6 +2,9 @@
  * API Client — all backend requests go through here.
  * Uses the Vite proxy so relative URLs work in dev.
  */
+import { translate } from '../i18n';
+
+const errMsg = () => translate('error.requestFailed');
 
 export interface User {
   id: number;
@@ -109,13 +112,13 @@ export async function fetchTickets(params: {
   if (params.priority) sp.set('priority', params.priority);
   if (params.search) sp.set('search', params.search);
   const res = await fetch(`/api/tickets?${sp}`, { credentials: 'include' });
-  if (!res.ok) throw new Error('Failed to fetch tickets');
+  if (!res.ok) throw new Error(errMsg());
   return res.json();
 }
 
 export async function fetchTicket(id: number): Promise<Ticket> {
   const res = await fetch(`/api/tickets/${id}`, { credentials: 'include' });
-  if (!res.ok) throw new Error('Failed to fetch ticket');
+  if (!res.ok) throw new Error(errMsg());
   return res.json();
 }
 
@@ -133,7 +136,7 @@ export async function createTicket(data: {
   });
   if (!res.ok) {
     const err = await res.json();
-    throw new Error(err.detail || 'Failed to create ticket');
+    throw new Error(err.detail || errMsg());
   }
   return res.json();
 }
@@ -147,7 +150,7 @@ export async function updateTicket(id: number, data: Record<string, unknown>): P
   });
   if (!res.ok) {
     const err = await res.json();
-    throw new Error(err.detail || 'Failed to update ticket');
+    throw new Error(err.detail || errMsg());
   }
   return res.json();
 }
@@ -159,7 +162,7 @@ export async function assignTicket(id: number, assigneeId: number): Promise<Tick
     credentials: 'include',
     body: JSON.stringify({ assignee_id: assigneeId }),
   });
-  if (!res.ok) throw new Error('Failed to assign ticket');
+  if (!res.ok) throw new Error(errMsg());
   return res.json();
 }
 
@@ -170,7 +173,7 @@ export async function transferTicket(id: number, assigneeId: number, reason: str
     credentials: 'include',
     body: JSON.stringify({ assignee_id: assigneeId, reason }),
   });
-  if (!res.ok) throw new Error('Failed to transfer ticket');
+  if (!res.ok) throw new Error(errMsg());
   return res.json();
 }
 
@@ -178,7 +181,7 @@ export async function transferTicket(id: number, assigneeId: number, reason: str
 
 export async function fetchComments(ticketId: number): Promise<Comment[]> {
   const res = await fetch(`/api/tickets/${ticketId}/comments`, { credentials: 'include' });
-  if (!res.ok) throw new Error('Failed to fetch comments');
+  if (!res.ok) throw new Error(errMsg());
   return res.json();
 }
 
@@ -189,7 +192,7 @@ export async function createComment(ticketId: number, content: string, isInterna
     credentials: 'include',
     body: JSON.stringify({ content, is_internal: isInternal }),
   });
-  if (!res.ok) throw new Error('Failed to create comment');
+  if (!res.ok) throw new Error(errMsg());
   return res.json();
 }
 
@@ -197,7 +200,7 @@ export async function createComment(ticketId: number, content: string, isInterna
 
 export async function fetchCategories(): Promise<Category[]> {
   const res = await fetch('/api/categories', { credentials: 'include' });
-  if (!res.ok) throw new Error('Failed to fetch categories');
+  if (!res.ok) throw new Error(errMsg());
   return res.json();
 }
 
@@ -208,7 +211,7 @@ export async function createCategory(data: { name: string; description: string; 
     credentials: 'include',
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error('Failed to create category');
+  if (!res.ok) throw new Error(errMsg());
   return res.json();
 }
 
@@ -219,7 +222,7 @@ export async function updateCategory(id: number, data: Record<string, unknown>):
     credentials: 'include',
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error('Failed to update category');
+  if (!res.ok) throw new Error(errMsg());
   return res.json();
 }
 
@@ -227,7 +230,7 @@ export async function updateCategory(id: number, data: Record<string, unknown>):
 
 export async function fetchUsers(): Promise<User[]> {
   const res = await fetch('/api/admin/users', { credentials: 'include' });
-  if (!res.ok) throw new Error('Failed to fetch users');
+  if (!res.ok) throw new Error(errMsg());
   return res.json();
 }
 
@@ -238,19 +241,19 @@ export async function updateUserRole(userId: number, role: string): Promise<User
     credentials: 'include',
     body: JSON.stringify({ role }),
   });
-  if (!res.ok) throw new Error('Failed to update user role');
+  if (!res.ok) throw new Error(errMsg());
   return res.json();
 }
 
 export async function fetchHandlers(): Promise<User[]> {
   const res = await fetch('/api/admin/handlers', { credentials: 'include' });
-  if (!res.ok) throw new Error('Failed to fetch handlers');
+  if (!res.ok) throw new Error(errMsg());
   return res.json();
 }
 
 export async function fetchStats(): Promise<Stats> {
   const res = await fetch('/api/admin/stats', { credentials: 'include' });
-  if (!res.ok) throw new Error('Failed to fetch stats');
+  if (!res.ok) throw new Error(errMsg());
   return res.json();
 }
 
@@ -264,7 +267,7 @@ export async function uploadAttachment(ticketId: number, file: File): Promise<{ 
     credentials: 'include',
     body: formData,
   });
-  if (!res.ok) throw new Error('Failed to upload attachment');
+  if (!res.ok) throw new Error(errMsg());
   return res.json();
 }
 

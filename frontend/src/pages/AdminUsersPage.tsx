@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { fetchUsers, updateUserRole, type User } from '../api/client';
 import { useAuth } from '../hooks/useAuth';
+import { useI18n } from '../i18n';
 import Layout from '../components/layout/Layout';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
@@ -10,10 +11,10 @@ import Badge from '../components/ui/Badge';
 import Avatar from '../components/ui/Avatar';
 
 const roleOptions = [
-  { value: 'user', label: '普通用户' },
-  { value: 'handler', label: '处理人员' },
-  { value: 'lead', label: '组长/主管' },
-  { value: 'admin', label: '管理员' },
+  { value: 'user', labelKey: 'role.user' },
+  { value: 'handler', labelKey: 'role.handler' },
+  { value: 'lead', labelKey: 'role.lead' },
+  { value: 'admin', labelKey: 'role.admin' },
 ];
 
 const roleBadgeVariant: Record<string, 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info'> = {
@@ -23,15 +24,9 @@ const roleBadgeVariant: Record<string, 'default' | 'primary' | 'success' | 'warn
   admin: 'danger',
 };
 
-const roleLabels: Record<string, string> = {
-  user: '普通用户',
-  handler: '处理人员',
-  lead: '组长',
-  admin: '管理员',
-};
-
 export default function AdminUsersPage() {
   const { user: currentUser } = useAuth();
+  const { t, formatDate } = useI18n();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [editUser, setEditUser] = useState<User | null>(null);
@@ -60,8 +55,8 @@ export default function AdminUsersPage() {
     <Layout>
       <div className="space-y-5">
         <div>
-          <h1 className="text-3xl font-bold text-surface-100">用户管理</h1>
-          <p className="text-surface-400 mt-1">管理系统用户及其角色权限</p>
+          <h1 className="text-3xl font-bold text-surface-100">{t('users.title')}</h1>
+          <p className="text-surface-400 mt-1">{t('users.subtitle')}</p>
         </div>
 
         <Card className="!p-0 overflow-hidden">
@@ -74,11 +69,11 @@ export default function AdminUsersPage() {
             <table className="w-full min-w-[860px]">
               <thead>
                 <tr className="border-b border-surface-700 bg-surface-900 text-left">
-                  <th className="px-5 py-3 text-xs font-semibold text-surface-400 uppercase">用户</th>
-                  <th className="px-5 py-3 text-xs font-semibold text-surface-400 uppercase">邮箱</th>
-                  <th className="px-5 py-3 text-xs font-semibold text-surface-400 uppercase">角色</th>
-                  <th className="px-5 py-3 text-xs font-semibold text-surface-400 uppercase">注册时间</th>
-                  <th className="px-5 py-3 text-xs font-semibold text-surface-400 uppercase">操作</th>
+                  <th className="px-5 py-3 text-xs font-semibold text-surface-400 uppercase">{t('users.col.user')}</th>
+                  <th className="px-5 py-3 text-xs font-semibold text-surface-400 uppercase">{t('users.col.email')}</th>
+                  <th className="px-5 py-3 text-xs font-semibold text-surface-400 uppercase">{t('users.col.role')}</th>
+                  <th className="px-5 py-3 text-xs font-semibold text-surface-400 uppercase">{t('users.col.registered')}</th>
+                  <th className="px-5 py-3 text-xs font-semibold text-surface-400 uppercase">{t('users.col.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -95,11 +90,11 @@ export default function AdminUsersPage() {
                     <td className="px-5 py-3.5 text-sm text-surface-400">{user.email}</td>
                     <td className="px-5 py-3.5">
                       <Badge variant={roleBadgeVariant[user.role] || 'default'}>
-                        {roleLabels[user.role] || user.role}
+                        {t(`role.${user.role}`)}
                       </Badge>
                     </td>
                     <td className="px-5 py-3.5 text-xs text-surface-500">
-                      {user.created_at ? new Date(user.created_at).toLocaleDateString('zh-CN') : '—'}
+                      {user.created_at ? formatDate(user.created_at) : '—'}
                     </td>
                     <td className="px-5 py-3.5">
                       {currentUser && user.id !== currentUser.id && (
@@ -108,7 +103,7 @@ export default function AdminUsersPage() {
                           size="sm"
                           onClick={() => { setEditUser(user); setNewRole(user.role); }}
                         >
-                          修改角色
+                          {t('users.editRole')}
                         </Button>
                       )}
                     </td>
@@ -122,7 +117,7 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Edit Role Modal */}
-      <Modal open={!!editUser} onClose={() => setEditUser(null)} title="修改用户角色">
+      <Modal open={!!editUser} onClose={() => setEditUser(null)} title={t('users.modal.title')}>
         {editUser && (
           <div className="space-y-4">
             <div className="flex items-center gap-3 p-3 bg-surface-900 rounded-lg border border-surface-700">
@@ -133,14 +128,14 @@ export default function AdminUsersPage() {
               </div>
             </div>
             <Select
-              label="新角色"
-              options={roleOptions}
+              label={t('users.field.newRole')}
+              options={roleOptions.map((o) => ({ value: o.value, label: t(o.labelKey) }))}
               value={newRole}
               onChange={(e) => setNewRole(e.target.value)}
             />
             <div className="flex gap-3 pt-2">
-              <Button onClick={handleUpdate} className="flex-1">确认修改</Button>
-              <Button variant="secondary" onClick={() => setEditUser(null)}>取消</Button>
+              <Button onClick={handleUpdate} className="flex-1">{t('users.confirm')}</Button>
+              <Button variant="secondary" onClick={() => setEditUser(null)}>{t('create.cancel')}</Button>
             </div>
           </div>
         )}
