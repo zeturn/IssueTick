@@ -53,12 +53,18 @@ spec:
           preset: mysql_default
       basaltPass:
         callbackPath: /api/auth/callback
+        redirectURIs:
+          - https://issuetick.beancs.com/api/auth/callback
+        allowedOrigins:
+          - https://issuetick.beancs.com
         scopes:
           - openid
           - profile
           - email
       env:
         FRONTEND_URL: https://issuetick.beancs.com
+        BASALTPASS_REDIRECT_URI: https://issuetick.beancs.com/api/auth/callback
+        BASALT_REDIRECT_URI: https://issuetick.beancs.com/api/auth/callback
         SESSION_COOKIE_SECURE: "true"
         SESSION_COOKIE_SAMESITE: lax
       watchPaths:
