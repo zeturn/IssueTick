@@ -1,7 +1,7 @@
 apiVersion: beancs.io/v1alpha1
 kind: Application
 metadata:
-  name: issuetick
+  name: issuetick-live
   displayName: IssueTick
   description: BasaltPass-integrated issue tracker with a managed MySQL database.
 spec:
@@ -12,7 +12,7 @@ spec:
     branch: master
   namespace:
     strategy: shared
-    name: proj-issuetick
+    name: proj-issuetick-live
   autoDeploy:
     enabled: true
     mode: affected-components
@@ -24,14 +24,15 @@ spec:
         database: issuetick
         username: issuetick
         persistence:
-          enabled: false
+          enabled: true
+          size: 10Gi
       credential:
         name: default
         description: Default IssueTick MySQL credential managed by BeanCS.
   components:
     - name: backend
       kind: service
-      projectName: issuetick-backend
+      projectName: issuetick-live-backend
       build:
         context: backend
         dockerfile: backend/Dockerfile
@@ -69,7 +70,7 @@ spec:
         - backend/**
     - name: frontend
       kind: frontend
-      projectName: issuetick-frontend
+      projectName: issuetick-live-frontend
       build:
         context: frontend
         dockerfile: frontend/Dockerfile
