@@ -24,8 +24,7 @@ spec:
         database: issuetick
         username: issuetick
         persistence:
-          enabled: true
-          size: 10Gi
+          enabled: false
       credential:
         name: default
         description: Default IssueTick MySQL credential managed by BeanCS.
