@@ -52,7 +52,6 @@ spec:
           credential: default
           preset: mysql_default
       basaltPass:
-        callbackPath: /api/auth/callback
         redirectURIs:
           - https://issuetick.beancs.com/api/auth/callback
         allowedOrigins:
