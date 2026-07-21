@@ -1,4 +1,5 @@
 import os
+from urllib.parse import quote_plus
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -37,6 +38,20 @@ class Settings:
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./issuetick.db")
     UPLOAD_DIR: str = os.getenv("UPLOAD_DIR", "./uploads")
     MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024  # 10MB
+
+    def database_url(self) -> str:
+        mysql_host = os.getenv("MYSQL_HOST", "").strip()
+        mysql_user = os.getenv("MYSQL_USERNAME", "").strip()
+        mysql_password = os.getenv("MYSQL_PASSWORD", "")
+        mysql_database = os.getenv("MYSQL_DATABASE", "").strip()
+        mysql_port = os.getenv("MYSQL_PORT", "3306").strip() or "3306"
+        if mysql_host and mysql_user and mysql_database:
+            return (
+                "mysql+pymysql://"
+                f"{quote_plus(mysql_user)}:{quote_plus(mysql_password)}"
+                f"@{mysql_host}:{mysql_port}/{mysql_database}?charset=utf8mb4"
+            )
+        return self.DATABASE_URL
 
 
 settings = Settings()
