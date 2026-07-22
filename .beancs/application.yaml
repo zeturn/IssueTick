@@ -79,6 +79,7 @@ spec:
           port: 80
           protocol: http
           exposure: public
+          domain: issuetick.beancs.com
       healthCheck:
         type: tcp
         port: http
