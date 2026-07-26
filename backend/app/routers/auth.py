@@ -158,19 +158,30 @@ async def login():
         "scope": "openid profile email",
     }
 
-    auth_url = f"{settings.BASALT_BASE_URL}/api/v1/oauth/authorize?{urlencode(params)}"
+    auth_url = f"{settings.BASALT_PUBLIC_BASE_URL}/api/v1/oauth/authorize?{urlencode(params)}"
     response = RedirectResponse(url=auth_url, status_code=302)
     _set_oauth_context_cookie(response, state, verifier, nonce)
     return response
 
 
 @router.get("/callback")
-async def callback(code: str, state: str, request: Request, db: Session = Depends(get_db)):
+async def callback(request: Request, db: Session = Depends(get_db)):
     """Handle BasaltPass OAuth callback."""
+    code = request.query_params.get("code")
+    state = request.query_params.get("state")
+    error = request.query_params.get("error")
+    error_description = request.query_params.get("error_description", "")
 
     # Ignore non-navigation requests to avoid consuming one-time auth codes.
     if not _is_browser_navigation(request):
         return Response(content='{"ok": false, "ignored": true, "reason": "non_navigation_callback"}', media_type="application/json")
+
+    # If BasaltPass returned an error (e.g. user denied), redirect to frontend
+    if error:
+        logger.warning("OAuth callback error: %s — %s", error, error_description)
+        response = RedirectResponse(url=_frontend_login_error_url(error), status_code=302)
+        _clear_oauth_context_cookie(response)
+        return response
 
     # Validate state
     oauth_context = _read_oauth_context_cookie(request, state)

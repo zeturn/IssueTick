@@ -20,7 +20,7 @@ export default function Sidebar() {
   return (
     <aside className="hidden fixed left-0 top-0 z-40 h-screen w-[240px] flex-col border-r border-surface-700 bg-[#f7f7f8] md:flex">
       <div className="flex h-20 items-center gap-3 border-b border-surface-700 px-5">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#f48120] text-white shadow-sm">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#f48120] text-white">
           <CloudIcon className="h-6 w-6" />
         </div>
         <div className="min-w-0">
@@ -30,7 +30,7 @@ export default function Sidebar() {
       </div>
 
       <div className="border-b border-surface-700 p-4">
-        <div className="flex h-10 items-center gap-2 rounded-lg border border-surface-700 bg-white px-3 text-sm text-surface-400 shadow-sm">
+        <div className="flex h-10 items-center gap-2 rounded-lg border border-surface-700 bg-white px-3 text-sm text-surface-400">
           <SearchIcon className="h-4 w-4 shrink-0" />
           <span className="truncate">{t('common.searchPlaceholder')}</span>
           <span className="ml-auto text-xs text-surface-500">Ctrl K</span>
@@ -46,8 +46,8 @@ export default function Sidebar() {
             className={({ isActive }) => `
               flex h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors
               ${isActive
-                ? 'bg-white text-surface-100 shadow-sm ring-1 ring-surface-700'
-                : 'text-surface-300 hover:bg-white hover:text-surface-100'
+                ? 'bg-surface-900 text-surface-100'
+                : 'text-surface-300 hover:bg-surface-900 hover:text-surface-100'
               }
               ${index === 3 ? 'mt-4' : ''}
             `}

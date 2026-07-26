@@ -8,6 +8,8 @@ import Card, { CardHeader, CardTitle } from '../components/ui/Card';
 import TicketStatusBadge from '../components/ticket/TicketStatusBadge';
 import TicketPriorityBadge from '../components/ticket/TicketPriorityBadge';
 import Avatar from '../components/ui/Avatar';
+import Button from '../components/ui/Button';
+import { Button as WcButton } from '@zeturn/watercolor-react';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -41,38 +43,31 @@ export default function DashboardPage() {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-5xl mx-auto px-1">
         {/* Header */}
-        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-surface-100">
+            <h1 className="text-2xl font-bold text-surface-100">
               {greeting()}，{user?.name || user?.email}
             </h1>
-            <p className="text-surface-400 mt-1">{t('dashboard.welcome')}</p>
+            <p className="text-sm text-surface-400 mt-1">{t('dashboard.welcome')}</p>
           </div>
-          <button
-            onClick={() => navigate('/tickets/new')}
-            className="
-              self-start xl:self-auto
-              h-12 px-5 rounded-lg bg-primary-600 text-white font-medium text-sm
-              shadow-sm hover:bg-primary-700 transition-colors duration-150
-              flex items-center gap-2 cursor-pointer
-            "
-          >
+          <Button variant="primary" icon={
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
+          } onClick={() => navigate('/tickets/new')}>
             {t('dashboard.createTicket')}
-          </button>
+          </Button>
         </div>
 
-        {/* Stats Cards (admin/lead only) */}
+        {/* Stats Cards */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard label={t('dashboard.stat.all')} value={stats.total_tickets} color="text-primary-700" bgColor="bg-primary-50" />
-            <StatCard label={t('dashboard.stat.open')} value={stats.open_tickets} color="text-amber-700" bgColor="bg-amber-50" />
-            <StatCard label={t('dashboard.stat.resolved')} value={stats.resolved_tickets} color="text-emerald-700" bgColor="bg-emerald-50" />
-            <StatCard label={t('dashboard.stat.users')} value={stats.total_users} color="text-sky-700" bgColor="bg-sky-50" />
+          <div className="grid grid-cols-2 gap-3">
+            <StatCard label={t('dashboard.stat.all')} value={stats.total_tickets} accent="#2563eb" />
+            <StatCard label={t('dashboard.stat.open')} value={stats.open_tickets} accent="#d97706" />
+            <StatCard label={t('dashboard.stat.resolved')} value={stats.resolved_tickets} accent="#059669" />
+            <StatCard label={t('dashboard.stat.users')} value={stats.total_users} accent="#0284c7" />
           </div>
         )}
 
@@ -80,58 +75,49 @@ export default function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>{t('dashboard.recent')}</CardTitle>
-            <button
-              onClick={() => navigate('/tickets')}
-              className="text-sm text-primary-400 hover:text-primary-300 transition-colors cursor-pointer"
-            >
-              {t('dashboard.viewAll')}
-            </button>
+            <WcButton variant="text" size="sm" onClick={() => navigate('/tickets')}>
+              {t('dashboard.viewAll')} &rarr;
+            </WcButton>
           </CardHeader>
 
           {loading ? (
-            <div className="space-y-3">
+            <div className="space-y-3 p-1">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-16 bg-surface-800 rounded-lg animate-pulse" />
+                <div key={i} className="h-14 bg-surface-800 rounded-lg animate-pulse" />
               ))}
             </div>
           ) : recentTickets.length === 0 ? (
             <div className="text-center py-12 text-surface-500">
-              <svg className="w-16 h-16 mx-auto mb-4 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+              <svg className="w-14 h-14 mx-auto mb-3 opacity-25" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
-              <p className="text-lg">{t('dashboard.empty.title')}</p>
+              <p className="font-medium">{t('dashboard.empty.title')}</p>
               <p className="text-sm mt-1">{t('dashboard.empty.desc')}</p>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="divide-y divide-surface-700">
               {recentTickets.map((ticket) => (
                 <div
                   key={ticket.id}
                   onClick={() => navigate(`/tickets/${ticket.id}`)}
-                  className="
-                    flex items-center gap-4 p-3.5 rounded-lg
-                    border border-transparent hover:border-surface-700 hover:bg-surface-900 transition-colors duration-150 cursor-pointer
-                    group
-                  "
+                  className="flex items-center gap-3 px-1 py-3 cursor-pointer hover:bg-surface-900 rounded-md transition-colors group"
                 >
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-2 flex-wrap mb-0.5">
                       <span className="text-xs text-surface-500 font-mono">{ticket.ticket_number}</span>
                       <TicketStatusBadge status={ticket.status} />
                       <TicketPriorityBadge priority={ticket.priority} />
                     </div>
-                    <h4 className="text-sm font-medium text-surface-200 truncate group-hover:text-surface-100 transition-colors">
+                    <p className="text-sm font-medium text-surface-200 truncate group-hover:text-white transition-colors">
                       {ticket.title}
-                    </h4>
+                    </p>
                   </div>
-                  <div className="flex items-center gap-3 flex-shrink-0">
-                    {ticket.assignee && (
-                      <Avatar name={ticket.assignee.name} url={ticket.assignee.avatar_url} size="sm" />
-                    )}
-                    <div className="text-xs text-surface-500">
+                  <div className="flex items-center gap-2.5 flex-shrink-0">
+                    {ticket.assignee && <Avatar name={ticket.assignee.name} url={ticket.assignee.avatar_url} size="sm" />}
+                    <span className="text-xs text-surface-500 whitespace-nowrap hidden sm:inline">
                       {formatDate(ticket.created_at)}
-                    </div>
-                    <svg className="w-4 h-4 text-surface-600 group-hover:text-surface-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    </span>
+                    <svg className="w-3.5 h-3.5 text-surface-600 group-hover:text-primary-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                     </svg>
                   </div>
@@ -145,17 +131,12 @@ export default function DashboardPage() {
   );
 }
 
-function StatCard({ label, value, color, bgColor }: { label: string; value: number; color: string; bgColor: string }) {
+function StatCard({ label, value, accent }: { label: string; value: number; accent: string }) {
   return (
     <Card>
-      <div className="flex items-center gap-4">
-        <div className={`w-11 h-11 rounded-lg ${bgColor} border border-surface-700 flex items-center justify-center`}>
-          <span className={`text-lg font-bold ${color}`}>{value}</span>
-        </div>
-        <div>
-          <p className="text-sm text-surface-400">{label}</p>
-          <p className={`text-2xl font-bold ${color}`}>{value}</p>
-        </div>
+      <div className="py-1">
+        <p className="text-xs font-medium text-surface-400 uppercase tracking-wide">{label}</p>
+        <p className="text-3xl font-bold mt-1" style={{ color: accent }}>{value}</p>
       </div>
     </Card>
   );

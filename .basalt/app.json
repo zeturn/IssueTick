@@ -5,20 +5,20 @@
     "app_id": "issuetick",
     "app_key": "issuetick",
     "display_name": "IssueTick Ticket System",
-    "homepage_url": "http://localhost:5115",
-    "api_base_url": "http://localhost:8112",
+    "homepage_url": "http://localhost:5117",
+    "api_base_url": "http://localhost:8115",
     "callback_urls": [
-      "http://localhost:8112/api/auth/callback"
+      "http://localhost:8115/api/auth/callback"
     ],
     "service_ports": [
       {
         "service": "backend",
-        "port": 8112,
+        "port": 8115,
         "protocol": "http"
       },
       {
         "service": "frontend",
-        "port": 5115,
+        "port": 5117,
         "protocol": "http"
       }
     ],

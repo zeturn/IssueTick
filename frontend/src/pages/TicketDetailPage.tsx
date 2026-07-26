@@ -207,7 +207,7 @@ export default function TicketDetailPage() {
                     <div
                       key={comment.id}
                       className={`
-                        flex gap-3 animate-fade-in
+                        flex gap-3
                         ${comment.is_internal ? 'opacity-80' : ''}
                       `}
                     >

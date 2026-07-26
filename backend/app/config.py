@@ -21,10 +21,11 @@ def _env_optional(name: str):
 
 class Settings:
     BASALT_BASE_URL: str = os.getenv("BASALT_BASE_URL", "http://localhost:8101")
+    BASALT_PUBLIC_BASE_URL: str = os.getenv("BASALT_PUBLIC_BASE_URL", "http://localhost:8101")
     BASALT_CLIENT_ID: str = os.getenv("BASALT_CLIENT_ID", "")
     BASALT_CLIENT_SECRET: str = os.getenv("BASALT_CLIENT_SECRET", "")
-    BASALT_REDIRECT_URI: str = os.getenv("BASALT_REDIRECT_URI", "http://localhost:8112/api/auth/callback")
-    FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5115")
+    BASALT_REDIRECT_URI: str = os.getenv("BASALT_REDIRECT_URI", "http://localhost:8115/api/auth/callback")
+    FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5117")
     JWT_SECRET: str = os.getenv("JWT_SECRET", "issuetick-dev-jwt-secret-change-in-prod")
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRE_HOURS: int = 72
