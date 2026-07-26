@@ -8,7 +8,7 @@ class Ticket(Base):
     __tablename__ = "tickets"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    ticket_number = Column(String, unique=True, nullable=False, index=True)
+    ticket_number = Column(String(32), unique=True, nullable=False, index=True)
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=False, default="")
     status = Column(String(20), nullable=False, default="new")

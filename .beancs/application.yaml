@@ -1,0 +1,89 @@
+apiVersion: beancs.io/v1alpha1
+kind: Application
+metadata:
+  name: issuetick-live
+  displayName: IssueTick
+  description: BasaltPass-integrated issue tracker with a managed MySQL database.
+spec:
+  type: monorepo
+  repo:
+    provider: github
+    name: zeturn/IssueTick
+    branch: master
+  namespace:
+    strategy: shared
+    name: proj-issuetick-live
+  autoDeploy:
+    enabled: true
+    mode: affected-components
+  dependencies:
+    - name: mysql
+      type: mysql
+      deployMethod: helm
+      config:
+        database: issuetick
+        username: issuetick
+        persistence:
+          enabled: true
+          size: 10Gi
+      credential:
+        name: default
+        description: Default IssueTick MySQL credential managed by BeanCS.
+  components:
+    - name: backend
+      kind: service
+      projectName: issuetick-live-backend
+      build:
+        context: backend
+        dockerfile: backend/Dockerfile
+      ports:
+        - name: http
+          port: 8112
+          protocol: http
+          exposure: internal
+      healthCheck:
+        type: http
+        path: /api/health
+        port: http
+      dependsOn:
+        - mysql
+      envFromDependencies:
+        - dependency: mysql
+          credential: default
+          preset: mysql_default
+      basaltPass:
+        redirectURIs:
+          - https://issuetick.beancs.com/api/auth/callback
+        allowedOrigins:
+          - https://issuetick.beancs.com
+        scopes:
+          - openid
+          - profile
+          - email
+      env:
+        FRONTEND_URL: https://issuetick.beancs.com
+        BASALTPASS_REDIRECT_URI: https://issuetick.beancs.com/api/auth/callback
+        BASALT_REDIRECT_URI: https://issuetick.beancs.com/api/auth/callback
+        SESSION_COOKIE_SECURE: "true"
+        SESSION_COOKIE_SAMESITE: lax
+      watchPaths:
+        - backend/**
+    - name: frontend
+      kind: frontend
+      projectName: issuetick-live-frontend
+      build:
+        context: frontend
+        dockerfile: frontend/Dockerfile
+      ports:
+        - name: http
+          port: 80
+          protocol: http
+          exposure: public
+          domain: issuetick.beancs.com
+      healthCheck:
+        type: tcp
+        port: http
+      dependsOn:
+        - backend
+      watchPaths:
+        - frontend/**
