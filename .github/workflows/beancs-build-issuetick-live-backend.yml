@@ -30,7 +30,7 @@ jobs:
       BEANCS_PROJECT: issuetick-live-backend
       BEANCS_IMAGE_BASE: registry.beancs.com/tenant-2/issuetick-live-backend
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Resolve image
         id: meta
         shell: bash
