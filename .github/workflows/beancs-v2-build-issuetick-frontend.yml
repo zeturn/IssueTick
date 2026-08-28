@@ -18,7 +18,7 @@ jobs:
       BEANCS_BUILD_RUN_ID: ${{ inputs.beancs_build_run_id }}
       BEANCS_IMAGE_BASE: registry.beancs.com/tenant-2/issuetick-live-frontend
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@v3
