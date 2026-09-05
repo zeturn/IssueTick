@@ -62,6 +62,8 @@ spec:
           - email
       env:
         FRONTEND_URL: https://issuetick.beancs.com
+        BASALT_BASE_URL: http://basaltpass-backend.beancs-system.svc.cluster.local:8101
+        BASALT_PUBLIC_BASE_URL: https://auth.beancs.com
         BASALTPASS_REDIRECT_URI: https://issuetick.beancs.com/api/auth/callback
         BASALT_REDIRECT_URI: https://issuetick.beancs.com/api/auth/callback
         SESSION_COOKIE_SECURE: "true"
